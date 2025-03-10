@@ -10,32 +10,47 @@
     BottomRight = 22
 }
 
-public class Program
+public class Buffer(Program program)
 {
-    public int ballX { get; set; }
-    public int ballY { get; set; }
-    public int rocketFirstX { get; set; } = 1;
-    public int rocketFirstY { get; set; } = 1;
-    public int rocketSecondX { get; set; } = 0;
-    public int rocketSecondY { get; set; } = 0;
-    public int firstScore { get; set; } = 0;
-    public int secondScore { get; set; } = 0;
+    public int RocketFirstX { get; set; } = program.RocketFirstX;
+    public int RocketFirstY { get; set; } = program.RocketFirstY;
+    public int RocketSecondX { get; set; } = program.RocketSecondX;
+    public int RocketSecondY { get; set; } = program.RocketSecondY;
+    public int BallX { get; set; } = program.BallX;
+    public int BallY { get; set; } = program.BallY;
+}
 
-    public Vector vector { get; set; } = Vector.TopLeft;
+public class Program()
+{
+    public int RocketFirstX { get; set; } = 1;
+    public int RocketFirstY { get; set; } = 1;
+    public int RocketSecondX { get; set; } = 0;
+    public int RocketSecondY { get; set; } = 0;
+    public int FirstScore { get; set; } = 0;
+    public int SecondScore { get; set; } = 0;
+    public int BallX { get; set; } = 0;
+    public int BallY { get; set; } = 0;
+    public Buffer Buffer { get; set; }
 
-    const int fieldX = 80;
-    const int fieldY = 25;
-    const int finalScore = 5;
+    public Vector Vector { get; set; } = Vector.TopLeft;
+
+    const int FieldX = 80;
+    const int FieldY = 25;
+    const int FinalScore = 5;
+
+    public char[,] ConsoleBuffer { get; set; } = new char[FieldX, FieldY];
 
     public static void Main()
     {
-        var program = new Program
+        var program = new Program()
         {
-            ballX = fieldX / 2,
-            ballY = fieldY / 2,
-            rocketSecondX = fieldX - 2,
-            rocketSecondY = 1
+            BallX = FieldX / 2,
+            BallY = FieldY / 2,
+            RocketSecondX = FieldX - 2,
+            RocketSecondY = 1
         };
+        program.Buffer = new Buffer(program);
+        program.FirstDraw();
         Task.Run(program.Draw);
         ConsoleKeyInfo key;
         do
@@ -43,128 +58,132 @@ public class Program
             key = Console.ReadKey(true);
 
             program.CalculationRockerPosition(key.Key.ToString());
+            program.DrawRocket();
         }
         while (key.Key != ConsoleKey.Escape); // по нажатию на Escape завершаем цикл
     }
 
     public void CalculateBallPosition()
     {
+        Buffer = new Buffer(this);
         //Коллизия левой ракетки
-        if (ballX == 2)
+        if (BallX == 2)
         {
-            if (ballX == rocketFirstX + 1 && ballY == rocketFirstY)
+            if (BallX == RocketFirstX + 1 && BallY == RocketFirstY)
             {
-                vector = Vector.TopRight;
+                Vector = Vector.TopRight;
             }
-            else if (ballX == rocketFirstX + 1 && ballY == rocketFirstY + 1)
+            else if (BallX == RocketFirstX + 1 && BallY == RocketFirstY + 1)
             {
-                vector = Vector.Right;
+                Vector = Vector.Right;
             }
-            else if (ballX == rocketFirstX + 1 && ballY == rocketFirstY + 2)
+            else if (BallX == RocketFirstX + 1 && BallY == RocketFirstY + 2)
             {
-                vector = Vector.BottomRight;
+                Vector = Vector.BottomRight;
             }
         }
         //Коллизия левой стены
-        else if (ballX == 1)
+        else if (BallX == 1)
         {
-            firstScore++;
-            if (vector == Vector.TopLeft)
+            FirstScore++;
+            DrawScore();
+            if (Vector == Vector.TopLeft)
             {
-                vector = Vector.BottomRight;
+                Vector = Vector.TopRight;
             }
-            else if (vector == Vector.Left)
+            else if (Vector == Vector.Left)
             {
-                vector = Vector.Right;
+                Vector = Vector.Right;
             }
-            else if (vector == Vector.BottomLeft)
+            else if (Vector == Vector.BottomLeft)
             {
-                vector = Vector.TopRight;
+                Vector = Vector.BottomRight;
             }
         }
 
         //Коллизия правой ракетки
-        else if (ballX == fieldX - 3)
+        else if (BallX == FieldX - 3)
         {
-            if (ballX == rocketSecondX - 1 && ballY == rocketSecondY)
+            if (BallX == RocketSecondX - 1 && BallY == RocketSecondY)
             {
-                vector = Vector.TopLeft;
+                Vector = Vector.TopLeft;
             }
-            else if (ballX == rocketSecondX - 1 && ballY == rocketSecondY + 1)
+            else if (BallX == RocketSecondX - 1 && BallY == RocketSecondY + 1)
             {
-                vector = Vector.Left;
+                Vector = Vector.Left;
             }
-            else if (ballX == rocketSecondX - 1 && ballY == rocketSecondY + 2)
+            else if (BallX == RocketSecondX - 1 && BallY == RocketSecondY + 2)
             {
-                vector = Vector.BottomLeft;
+                Vector = Vector.BottomLeft;
             }
         }
         //Коллизия правой стены
-        else if (ballX == fieldX - 2)
+        else if (BallX == FieldX - 2)
         {
-            secondScore++;
-            if (vector == Vector.TopRight)
+            SecondScore++;
+            DrawScore();
+            if (Vector == Vector.TopRight)
             {
-                vector = Vector.BottomLeft;
+                Vector = Vector.TopLeft;
             }
-            else if (vector == Vector.Right)
+            else if (Vector == Vector.Right)
             {
-                vector = Vector.Left;
+                Vector = Vector.Left;
             }
-            else if (vector == Vector.BottomRight)
+            else if (Vector == Vector.BottomRight)
             {
-                vector = Vector.TopLeft;
+                Vector = Vector.BottomLeft;
             }
         }
 
         //Коллизия верхней стены
-        else if (ballY == 1)
+        else if (BallY == 1)
         {
-            if (vector == Vector.TopRight)
+            if (Vector == Vector.TopRight)
             {
-                vector = Vector.BottomRight;
+                Vector = Vector.BottomRight;
             }
-            else if (vector == Vector.TopLeft)
+            else if (Vector == Vector.TopLeft)
             {
-                vector = Vector.BottomLeft;
+                Vector = Vector.BottomLeft;
             }
         }
         //Коллизия нижней стены
-        else if (ballY == fieldY - 2)
+        else if (BallY == FieldY - 2)
         {
-            if (vector == Vector.BottomRight)
+            if (Vector == Vector.BottomRight)
             {
-                vector = Vector.TopRight;
+                Vector = Vector.TopRight;
             }
-            else if (vector == Vector.BottomLeft)
+            else if (Vector == Vector.BottomLeft)
             {
-                vector = Vector.TopLeft;
+                Vector = Vector.TopLeft;
             }
         }
 
-        switch (vector)
+        switch (Vector)
         {
             case Vector.Left:
-                ballX--;
+                BallX--;
                 break;
             case Vector.Right:
-                ballX++;
+                BallX++;
                 break;
             case Vector.TopLeft:
-                ballX--;
-                ballY--;
+                BallX--;
+                BallY--;
                 break;
             case Vector.BottomLeft:
-                ballX--;
-                ballY++;
+                BallX--;
+                BallY++;
                 break;
             case Vector.TopRight:
-                ballX++;
-                ballY--;
+                BallX++;
+                BallY--;
                 break;
             case Vector.BottomRight:
-                ballX++;
-                ballY++;
+                BallX++;
+                BallY++;
                 break;
             default:
                 break;
@@ -173,27 +192,119 @@ public class Program
 
     public void CalculationRockerPosition(string key)
     {
+        Buffer = new Buffer(this);
         switch (key)
         {
             case "W":
-                if (rocketFirstY > 1 && rocketFirstY <= fieldY - 4)
-                    rocketFirstY--;
+                if (RocketFirstY > 1 && RocketFirstY <= FieldY - 4)
+                    RocketFirstY--;
                 break;
             case "S":
-                if (rocketFirstY >= 1 && rocketFirstY < fieldY - 4)
-                    rocketFirstY++;
+                if (RocketFirstY >= 1 && RocketFirstY < FieldY - 4)
+                    RocketFirstY++;
                 break;
             case "O":
-                if (rocketSecondY > 1 && rocketSecondY <= fieldY - 4)
-                    rocketSecondY--;
+                if (RocketSecondY > 1 && RocketSecondY <= FieldY - 4)
+                    RocketSecondY--;
                 break;
             case "L":
-                if (rocketSecondY >= 1 && rocketSecondY < fieldY - 4)
-                    rocketSecondY++;
+                if (RocketSecondY >= 1 && RocketSecondY < FieldY - 4)
+                    RocketSecondY++;
                 break;
             default:
                 break;
         }
+    }
+
+    public void FirstDraw()
+    {
+        Console.Clear();
+
+        for (int y = 0; y < FieldY; y++)
+        {
+            for (int x = 0; x < FieldX; x++)
+            {
+                //Местоположение левой ракетки
+                if (RocketFirstX == x && RocketFirstY == y)
+                {
+                    Console.Write("I");
+                }
+                else if (RocketFirstX == x && RocketFirstY + 1 == y)
+                {
+                    Console.Write("I");
+                }
+                else if (RocketFirstX == x && RocketFirstY + 2 == y)
+                {
+                    Console.Write("I");
+                }
+                //Местоположение правой ракетки
+                else if (RocketSecondX == x && RocketSecondY == y)
+                {
+                    Console.Write("I");
+                }
+                else if (RocketSecondX == x && RocketSecondY + 1 == y)
+                {
+                    Console.Write("I");
+                }
+                else if (RocketSecondX == x && RocketSecondY + 2 == y)
+                {
+                    Console.Write("I");
+                }
+                //Заполенение шара
+                else if (BallX == x && BallY == y)
+                {
+                    Console.Write("O");
+                }
+                //Заполнение поля
+                else if (y == 0)
+                {
+                    if (x == FieldX - 1)
+                    {
+                        Console.WriteLine("\\");
+                    }
+                    else if (x == 0)
+                    {
+                        Console.Write("/");
+                    }
+                    else
+                    {
+                        Console.Write("=");
+                    }
+                }
+                else if (y == FieldY - 1)
+                {
+                    if (x == FieldX - 1)
+                    {
+                        Console.WriteLine("/");
+                    }
+                    else if (x == 0)
+                    {
+                        Console.Write("\\");
+                    }
+                    else
+                    {
+                        Console.Write("=");
+                    }
+                }
+                else if (x == 0)
+                {
+                    Console.Write("|");
+                }
+                else if (x == FieldX - 1)
+                {
+                    Console.WriteLine("|");
+                }
+                else
+                {
+                    Console.Write(" ");
+                }
+            }
+        }
+        Console.WriteLine($@"Счет: {FirstScore} : {SecondScore}");
+        Console.WriteLine("Управление левой ракеткой: W - вверх, S - вниз");
+        Console.WriteLine("Управление правой ракеткой: O - вверх, L - вниз");
+        Console.WriteLine("Чтобы выйти нажмите Esc");
+        Buffer = new Buffer(this);
     }
 
     public void Draw()
@@ -201,103 +312,64 @@ public class Program
         while (true)
         {
             CalculateBallPosition();
-            Console.Clear();
-            Console.WriteLine($@"Счет: {firstScore} : {secondScore}");
-            Console.WriteLine("Управление левой ракеткой: W - вверх, S - вниз");
-            Console.WriteLine("Управление правой ракеткой: O - вверх, L - вниз");
-            Console.WriteLine("Чтобы выйти нажмите Esc");
+            DrawBall();
 
-            for (int y = 0; y < fieldY; y++)
-            {
-                for (int x = 0; x < fieldX; x++)
-                {
-                    //Местоположение левой ракетки
-                    if (rocketFirstX == x && rocketFirstY == y)
-                    {
-                        Console.Write("I");
-                    }
-                    else if (rocketFirstX == x && rocketFirstY + 1 == y)
-                    {
-                        Console.Write("I");
-                    }
-                    else if (rocketFirstX == x && rocketFirstY + 2 == y)
-                    {
-                        Console.Write("I");
-                    }
-                    //Местоположение правой ракетки
-                    else if (rocketSecondX == x && rocketSecondY == y)
-                    {
-                        Console.Write("I");
-                    }
-                    else if (rocketSecondX == x && rocketSecondY + 1 == y)
-                    {
-                        Console.Write("I");
-                    }
-                    else if (rocketSecondX == x && rocketSecondY + 2 == y)
-                    {
-                        Console.Write("I");
-                    }
-                    //Заполенение шара
-                    else if (ballX == x && ballY == y)
-                    {
-                        Console.Write("O");
-                    }
-                    //Заполнение поля
-                    else if (y == 0)
-                    {
-                        if (x == fieldX - 1)
-                        {
-                            Console.WriteLine("\\");
-                        }
-                        else if (x == 0)
-                        {
-                            Console.Write("/");
-                        }
-                        else
-                        {
-                            Console.Write("=");
-                        }
-                    }
-                    else if (y == fieldY - 1)
-                    {
-                        if (x == fieldX - 1)
-                        {
-                            Console.WriteLine("/");
-                        }
-                        else if (x == 0)
-                        {
-                            Console.Write("\\");
-                        }
-                        else
-                        {
-                            Console.Write("=");
-                        }
-                    }
-                    else if (x == 0)
-                    {
-                        Console.Write("|");
-                    }
-                    else if (x == fieldX - 1)
-                    {
-                        Console.WriteLine("|");
-                    }
-                    else
-                    {
-                        Console.Write(" ");
-                    }
-                }
-            }
-            if (firstScore >= finalScore)
+            if (FirstScore >= FinalScore)
             {
                 Console.WriteLine("Победил правый игрок!");
                 break;
             }
-            else if (secondScore >= finalScore)
+            else if (SecondScore >= FinalScore)
             {
                 Console.WriteLine("Победил левый игрок!");
                 break;
             }
-            Thread.Sleep(100);
+            Thread.Sleep(500);
         }
+    }
+
+    public void DrawScore()
+    {
+        Console.SetCursorPosition(6, FieldY);
+        Console.Write(FirstScore);
+        Console.SetCursorPosition(10, FieldY);
+        Console.Write(SecondScore);
+    }
+
+    public void DrawBall()
+    {
+        Console.SetCursorPosition(Buffer.BallX, Buffer.BallY);
+        Console.Write(" ");
+        Console.SetCursorPosition(BallX, BallY);
+        Console.Write("O");
+    }
+
+    public void DrawRocket()
+    {
+        Console.SetCursorPosition(Buffer.RocketFirstX, Buffer.RocketFirstY);
+        Console.Write(" ");
+        Console.SetCursorPosition(Buffer.RocketFirstX, Buffer.RocketFirstY + 1);
+        Console.Write(" ");
+        Console.SetCursorPosition(Buffer.RocketFirstX, Buffer.RocketFirstY + 2);
+        Console.Write(" ");
+        Console.SetCursorPosition(RocketFirstX, RocketFirstY);
+        Console.Write("I");
+        Console.SetCursorPosition(RocketFirstX, RocketFirstY + 1);
+        Console.Write("I");
+        Console.SetCursorPosition(RocketFirstX, RocketFirstY + 2);
+        Console.Write("I");
+
+        Console.SetCursorPosition(Buffer.RocketSecondX, Buffer.RocketSecondY);
+        Console.Write(" ");
+        Console.SetCursorPosition(Buffer.RocketSecondX, Buffer.RocketSecondY + 1);
+        Console.Write(" ");
+        Console.SetCursorPosition(Buffer.RocketSecondX, Buffer.RocketSecondY + 2);
+        Console.Write(" ");
+        Console.SetCursorPosition(RocketSecondX, RocketSecondY);
+        Console.Write("I");
+        Console.SetCursorPosition(RocketSecondX, RocketSecondY + 1);
+        Console.Write("I");
+        Console.SetCursorPosition(RocketSecondX, RocketSecondY + 2);
+        Console.Write("I");
     }
 }
