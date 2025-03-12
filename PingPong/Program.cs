@@ -20,7 +20,7 @@ public class Buffer(Program program)
     public int BallY { get; set; } = program.BallY;
 }
 
-public class Program()
+public class Program
 {
     public int RocketFirstX { get; set; } = 1;
     public int RocketFirstY { get; set; } = 1;
@@ -34,7 +34,7 @@ public class Program()
 
     public Vector Vector { get; set; } = Vector.TopLeft;
 
-    const int FieldX = 80;
+    const int FieldX = 100;
     const int FieldY = 25;
     const int FinalScore = 5;
 
@@ -338,8 +338,8 @@ public class Program()
 
     public void DrawBall()
     {
-        //Console.SetCursorPosition(Buffer.BallX, Buffer.BallY);
-        //Console.Write(" ");
+        Console.SetCursorPosition(Buffer.BallX, Buffer.BallY);
+        Console.Write(" ");
         Console.SetCursorPosition(BallX, BallY);
         Console.Write("O");
     }
