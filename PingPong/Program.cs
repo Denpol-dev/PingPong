@@ -83,7 +83,7 @@ public class Program()
             }
         }
         //Коллизия левой стены
-        else if (BallX == 1)
+        else if (BallX <= 1)
         {
             FirstScore++;
             DrawScore();
@@ -118,7 +118,7 @@ public class Program()
             }
         }
         //Коллизия правой стены
-        else if (BallX == FieldX - 2)
+        else if (BallX >= FieldX - 2)
         {
             SecondScore++;
             DrawScore();
@@ -137,7 +137,7 @@ public class Program()
         }
 
         //Коллизия верхней стены
-        else if (BallY == 1)
+        else if (BallY <= 1)
         {
             if (Vector == Vector.TopRight)
             {
@@ -149,7 +149,7 @@ public class Program()
             }
         }
         //Коллизия нижней стены
-        else if (BallY == FieldY - 2)
+        else if (BallY >= FieldY - 2)
         {
             if (Vector == Vector.BottomRight)
             {
@@ -316,15 +316,15 @@ public class Program()
 
             if (FirstScore >= FinalScore)
             {
-                Console.WriteLine("Победил правый игрок!");
+                Console.WriteLine(" Победил правый игрок!");
                 break;
             }
             else if (SecondScore >= FinalScore)
             {
-                Console.WriteLine("Победил левый игрок!");
+                Console.WriteLine(" Победил левый игрок!");
                 break;
             }
-            Thread.Sleep(500);
+            Thread.Sleep(100);
         }
     }
 
@@ -338,8 +338,8 @@ public class Program()
 
     public void DrawBall()
     {
-        Console.SetCursorPosition(Buffer.BallX, Buffer.BallY);
-        Console.Write(" ");
+        //Console.SetCursorPosition(Buffer.BallX, Buffer.BallY);
+        //Console.Write(" ");
         Console.SetCursorPosition(BallX, BallY);
         Console.Write("O");
     }
